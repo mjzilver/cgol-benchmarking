@@ -32,7 +32,9 @@ done
 
 executables=("go/bin/cgol")
 
-log_file="benchmark_results.log"
+timestamp=$(date +%s)
+log_file="benchmark_results_${timestamp}.log"
+
 echo "Benchmark Results" > "$log_file"
 echo "------------------" >> "$log_file"
 

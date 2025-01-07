@@ -1,2 +1,4 @@
+# ignore the default input
 input.txt
-benchmark_results.log
+# ignore all results
+benchmark_results_*.log

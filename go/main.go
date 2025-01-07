@@ -69,8 +69,8 @@ func parseBoard(filePath string, size int) [][]int {
 func nextState(board [][]int, size int) [][]int {
 	res := initBoard(size)
 
-	for y := range len(board) {
-		for x := range len(board[y]) {
+	for y := range size {
+		for x := range size {
 			if shouldCellLive(board, y, x, size) {
 				res[y][x] = 1
 			}
