@@ -10,25 +10,24 @@ import (
 
 var (
 	inputFile string
-	size      int
+	size      = -1
 	amount    int
 	silent    bool
 )
 
 func init() {
-	flag.StringVar(&inputFile, "file", "input.txt", "Input file containing initial board state")
-	flag.IntVar(&size, "size", 20, "Size of the board (square)")
-	flag.IntVar(&amount, "amount", 30, "Number of iterations")
+	flag.StringVar(&inputFile, "file", "invalid", "Input file containing initial board state")
+	flag.IntVar(&amount, "amount", -1, "Number of iterations")
 	flag.BoolVar(&silent, "silent", false, "If true, do not print")
 }
 
 func main() {
 	flag.Parse()
 
-	board := parseBoard(inputFile, size)
+	board := parseBoard()
 
 	for _ = range amount {
-		board = nextState(board, size)
+		board = nextState(board)
 	}
 
 	if !silent {
@@ -36,7 +35,7 @@ func main() {
 	}
 }
 
-func initBoard(size int) [][]int {
+func initBoard() [][]int {
 	res := make([][]int, size)
 	for i := range res {
 		res[i] = make([]int, size)
@@ -44,12 +43,12 @@ func initBoard(size int) [][]int {
 	return res
 }
 
-func parseBoard(filePath string, size int) [][]int {
-	res := initBoard(size)
+func parseBoard() [][]int {
+	var res [][]int
 
 	file, err := os.Open(inputFile)
 	if err != nil {
-		panic(fmt.Sprintf("File %s not found!", filePath))
+		panic(fmt.Sprintf("File %s not found!", inputFile))
 	}
 
 	fileScanner := bufio.NewScanner(file)
@@ -57,7 +56,13 @@ func parseBoard(filePath string, size int) [][]int {
 	row := 0
 
 	for fileScanner.Scan() {
-		for i, ch := range fileScanner.Text() {
+		str := fileScanner.Text()
+		if size == -1 {
+			size = len(str)
+			res = initBoard()
+		}
+
+		for i, ch := range str {
 			res[row][i] = int(ch - '0')
 		}
 		row = row + 1
@@ -66,12 +71,12 @@ func parseBoard(filePath string, size int) [][]int {
 	return res
 }
 
-func nextState(board [][]int, size int) [][]int {
-	res := initBoard(size)
+func nextState(board [][]int) [][]int {
+	res := initBoard()
 
 	for y := range size {
 		for x := range size {
-			if shouldCellLive(board, y, x, size) {
+			if shouldCellLive(board, y, x) {
 				res[y][x] = 1
 			}
 		}
@@ -88,7 +93,7 @@ var (
 	}
 )
 
-func shouldCellLive(board [][]int, y, x, size int) bool {
+func shouldCellLive(board [][]int, y, x int) bool {
 	count := 0
 
 	for _, n := range neighbors {
