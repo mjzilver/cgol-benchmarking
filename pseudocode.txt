@@ -1,0 +1,38 @@
+MAIN:
+    Parse command-line arguments:
+        --file: Input file containing initial board state
+        --size: Size of the board (square)
+        --amount: Number of iterations
+        --silent: If true, do not print final board state
+
+    Initialize the board:
+        Load the initial state into a 2D array
+
+    RUN GAME OF LIFE:
+        Loop for the number of iterations (--amount):
+            Compute the next state of the board based on the rules
+            Replace the current state with the new state
+
+    If not in --silent mode:
+        Print the final board state to the console
+
+    Exit successfully
+
+FUNCTIONS:
+    Compute Next State(board):
+        Create a new empty 2D array for the next state
+        For each cell (x, y) in the board:
+            Count live neighbors of (x, y)
+            Apply Game of Life rules:
+                If the cell is alive:
+                    Survives if neighbors == 2 or 3; otherwise dies
+                If the cell is dead:
+                    Comes to life if neighbors == 3
+        Return the new board state
+
+    Count Live Neighbors(board, x, y):
+        Initialize count = 0
+        Loop through 3x3 neighborhood centered on (x, y):
+            Skip the center cell itself
+            If the neighbor cell is alive, increment count
+        Return count
