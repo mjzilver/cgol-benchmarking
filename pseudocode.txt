@@ -3,7 +3,7 @@ MAIN:
         --file: Input file containing initial board state
         --size: Size of the board (square)
         --amount: Number of iterations
-        --silent: If true, do not print final board state
+        --silent: If true, do not print
 
     Initialize the board:
         Load the initial state into a 2D array
@@ -32,7 +32,7 @@ FUNCTIONS:
 
     Count Live Neighbors(board, x, y):
         Initialize count = 0
-        Loop through 3x3 neighborhood centered on (x, y):
+        Loop through 3x3 neighborhood centered on (x, y) wrapping around the edges: 
             Skip the center cell itself
             If the neighbor cell is alive, increment count
         Return count
