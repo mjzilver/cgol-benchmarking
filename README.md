@@ -32,8 +32,6 @@ The general API for all the implementations is as follows:
 
 --amount flag: This flag is used to specify the number of iterations the game should run for.
 
---size flag: This flag is used to specify the size of the board - it is always square.
-
 --file flag: This flag is used to specify the file from which the initial state of the board should be read. 
 
 You don't have to validate anything just assume the input it always correct.

@@ -1,7 +1,6 @@
 MAIN:
     Parse command-line arguments:
         --file: Input file containing initial board state
-        --size: Size of the board (square)
         --amount: Number of iterations
         --silent: If true, do not print
 
