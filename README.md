@@ -13,9 +13,9 @@ Generate new input files
 
 ## Current implemented Languages
 - Go
+- C 
 
 ### Wishlist
-- C
 - C++
 - Rust
 - Javascript (Node.js)
@@ -40,4 +40,3 @@ You don't have to validate anything just assume the input it always correct.
 - No AI code generation. (Not fun)
 - No dependencies.
 - Cells must wrap around the edges. (Less chance of total cell death)
-- Try to be fast.

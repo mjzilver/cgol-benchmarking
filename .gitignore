@@ -1,4 +1,8 @@
-# ignore the default input
 input.txt
-# ignore all results
+temp.txt
 benchmark_results_*.log
+output.txt
+.venv
+notes.txt
+
+*/bin

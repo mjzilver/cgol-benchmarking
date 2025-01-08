@@ -5,8 +5,11 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
+
+const outputFile = "output.txt"
 
 var (
 	inputFile string
@@ -114,10 +117,15 @@ func shouldCellLive(board [][]int, y, x int) bool {
 }
 
 func printBoard(board [][]int) {
-	fmt.Println(strings.Repeat("-", len(board)*2))
+	file, _ := os.Create(outputFile)
+	defer file.Close()
 
+	var strb strings.Builder
 	for y := range len(board) {
-		fmt.Printf("%v\n", board[y])
+		for x := range len(board) {
+			strb.WriteString(strconv.Itoa(board[y][x]))
+		}
+		strb.WriteRune('\n')
 	}
-	fmt.Println(strings.Repeat("-", len(board)*2))
+	file.WriteString(strb.String())
 }

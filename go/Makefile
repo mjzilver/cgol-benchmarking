@@ -4,7 +4,7 @@ build:
 	go build -o bin/cgol main.go
 
 run:
-	go run main.go --file ../input.txt --amount 20
+	go run main.go --file ../input.txt --amount 10
 
 clean:
 	rm -rf bin

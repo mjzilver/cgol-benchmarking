@@ -30,10 +30,12 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-executables=("go/bin/cgol")
+executables=("go/bin/cgol" "c/bin/cgol")
 
 timestamp=$(date +%s)
-log_file="benchmark_results_${timestamp}.log"
+log_file="logs/benchmark_results_${timestamp}.log"
+
+mkdir -p logs
 
 echo "Benchmark Results" > "$log_file"
 echo "------------------" >> "$log_file"

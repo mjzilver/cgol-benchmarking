@@ -1,4 +1,4 @@
-.PHONY: bench gen bench-gen compile light
+.PHONY: bench gen bench-gen
 
 bench:
 	./benchmark.sh
@@ -10,10 +10,15 @@ bench-gen: gen bench
 
 fresh: compile gen bench
 
-# Runs a lightweight version of the benchmark
+.PHONY: light
 light:
 	./benchmark.sh --iterations 1
 
-# This compiles all (where applicable) solutuons
+.PHONY: compile
 compile:
 	cd go && make
+	cd c && make
+
+.PHONY: web
+web:
+	cd web && python3 server.py
