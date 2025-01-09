@@ -1,8 +1,11 @@
+# logs
+benchmark_results_*.log
+
+# binaries
+*/bin
+
+# inputs and ouputs
 input.txt
 temp.txt
-benchmark_results_*.log
 output.txt
-.venv
 notes.txt
-
-*/bin

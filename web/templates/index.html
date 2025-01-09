@@ -56,7 +56,8 @@
     </select>
     <script>
         let board = [];
-        let intervalId;
+        let timeoutId;
+        let timerEnabled = false;
 
         function drawBoard(board) {
             const canvas = document.getElementById('canvas');
@@ -94,51 +95,69 @@
         }
 
         function boardTostring(board) {
-            return board.map(row => row.join('') + "\n").join('')
+            return board.map(row => row.join('') + "\n").join('');
         }
 
         function toggleTimer() {
-            let interval_MS = document.getElementById('timer_time').value
-            if (intervalId !== undefined) {
-                clearInterval(intervalId);
-                intervalId = undefined
+            if (timerEnabled) {
+                timerEnabled = false;
+                clearTimeout(timeoutId);
+                timeoutId = undefined;
             } else {
-                intervalId = setInterval(runBinary, interval_MS)
+                timerEnabled = true;
+                runBinaryWithTimer();
             }
         }
 
-        function runBinary() {
+        function runBinaryWithTimer() {
+            if (!timerEnabled) return;
+
+            const startTime = performance.now();
+
+            runBinary().then(() => {
+                const elapsedTime = performance.now() - startTime;
+                const interval_MS = parseInt(document.getElementById('timer_time').value, 10);
+
+                if (elapsedTime >= interval_MS) {
+                    runBinaryWithTimer();
+                } else {
+                    timeoutId = setTimeout(runBinaryWithTimer, interval_MS - elapsedTime);
+                }
+            });
+        }
+
+        async function runBinary() {
             const binaryPath = document.getElementById('binaryPath').value;
 
             const formData = new FormData();
             formData.append('binary_path', binaryPath);
-            formData.append('board', boardTostring(board))
+            formData.append('board', boardTostring(board));
 
-            fetch('/run', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(data => {
-                            throw new Error(data.error || "Unknown error");
-                        });
-                    }
-                    return response.text();
-                })
-                .then(data => {
-                    board = parseBoard(data);
-                    drawBoard(board);
-                })
-                .catch(error => {
-                    console.error(`Error: ${error.message}`);
+            try {
+                const response = await fetch('/run', {
+                    method: 'POST',
+                    body: formData
                 });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Unknown error");
+                }
+
+                const data = await response.text();
+                board = parseBoard(data);
+                drawBoard(board);
+
+            } catch (error) {
+                console.error(`Error: ${error.message}`);
+            }
         }
 
         const inputContent = `{{ input_content }}`;
         board = parseBoard(inputContent);
         drawBoard(board);
     </script>
+
 </body>
 
 </html>

@@ -15,7 +15,7 @@ def index():
 @app.route('/run', methods=['POST'])
 def run_binary():
     binary_path = request.form.get('binary_path')
-    board = request.form.get('board') # turn into temp file
+    board = request.form.get('board')
     
     with open(TEMP_FILE, 'w') as t:
         t.write(board)
