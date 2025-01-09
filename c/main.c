@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #define OUTPUT_FILE "output.txt"
 
@@ -86,14 +87,29 @@ void parseBoard() {
 
     char line[1024];
     int row = 0;
+
     while (fgets(line, sizeof(line), file)) {
+        char *ptr = line;
+
+        while (isspace(*ptr)) {
+            ptr++;
+        }
+
         if (size == -1) {
-            size = strlen(line) - 2; // -2 for \n
+            size = strlen(ptr);
+            while (size > 0 && isspace(ptr[size - 1])) {
+                size--;
+            }
             initBoard();
         }
 
         for (int i = 0; i < size; i++) {
-            board[row][i] = line[i] - '0';
+            if (isdigit(ptr[i])) {
+                board[row][i] = ptr[i] - '0';
+            } else {
+                fprintf(stderr, "Unexpected character '%c' in input\n", ptr[i]);
+                exit(1);
+            }
         }
         row++;
     }

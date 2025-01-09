@@ -30,38 +30,48 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-executables=("go/bin/cgol" "c/bin/cgol")
-
+executables=("./go/bin/cgol" "./c/bin/cgol" "perl ./perl/cgol.pl")
+names=("go" "c" "perl") 
 timestamp=$(date +%s)
-log_file="logs/benchmark_results_${timestamp}.log"
 
 mkdir -p logs
 
-echo "Benchmark Results" > "$log_file"
-echo "------------------" >> "$log_file"
+# Function to run the benchmark for each executable
+benchmark_executable() {
+    exe=$1
+    name=$2
 
-for exe in "${executables[@]}"; do
-    echo "Benchmarking $exe..." >> "$log_file"
+    log_file_name="logs/benchmark_${name}_${timestamp}.log"
     total_time=0
 
-    # Run the executable 'iterations' number of times
+    echo "Benchmarking $exe..." > "$log_file_name"
+    echo "------------------" >> "$log_file_name"
+
     for ((i=1; i<=iterations; i++)); do
-        echo "  Running iteration $i..." >> "$log_file"
+        echo "  Running iteration $i..." >> "$log_file_name"
         
         start_time=$(date +%s%3N)
-        ./"$exe" --silent --amount "$amount" --file "$input_file" > /dev/null
+        $exe --silent --amount "$amount" --file "$input_file" > /dev/null
         end_time=$(date +%s%3N)
 
         elapsed_time=$((end_time - start_time))
         total_time=$((total_time + elapsed_time))
 
-        echo "    Iteration $i: ${elapsed_time} ms" >> "$log_file"
+        echo "    Iteration $i: ${elapsed_time} ms" >> "$log_file_name"
     done
 
     # Calculate average time
     avg_time=$((total_time / iterations))
-    echo "Executable $exe: Average time over $iterations iterations: ${avg_time} ms" >> "$log_file"
-    echo "------------------" >> "$log_file"
+    echo "Executable $exe ($name): Average time over $iterations iterations: ${avg_time} ms" >> "$log_file_name"
+    echo "------------------" >> "$log_file_name"
+}
+
+# Run each executable in parallel
+for i in "${!executables[@]}"; do
+    benchmark_executable "${executables[$i]}" "${names[$i]}" &
 done
 
-echo "Benchmarking complete! Results saved to $log_file."
+# Wait for all background processes to finish
+wait
+
+echo "Benchmarking complete. Results are in the logs directory."

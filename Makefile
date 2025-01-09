@@ -12,7 +12,7 @@ fresh: compile gen bench
 
 .PHONY: light
 light:
-	./benchmark.sh --iterations 1
+	./benchmark.sh --iterations 10 --amount 30
 
 .PHONY: compile
 compile:

@@ -1,5 +1,5 @@
 # logs
-benchmark_results_*.log
+benchmark_*.log
 
 # binaries
 */bin

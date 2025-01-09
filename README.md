@@ -14,6 +14,7 @@ Generate new input files
 ## Current implemented Languages
 - Go
 - C 
+- Perl
 
 ### Wishlist
 - C++
@@ -23,7 +24,6 @@ Generate new input files
 - C#
 - OCaml
 - Bash
-- ASM (x86_64)
 
 ### General API
 The general API for all the implementations is as follows:
