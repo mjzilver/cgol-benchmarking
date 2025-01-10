@@ -9,3 +9,6 @@ input.txt
 temp.txt
 output.txt
 notes.txt
+
+# IDE
+.vscode

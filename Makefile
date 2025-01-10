@@ -18,6 +18,7 @@ light:
 compile:
 	cd go && make
 	cd c && make
+	cd ocaml && make
 
 .PHONY: web
 web:

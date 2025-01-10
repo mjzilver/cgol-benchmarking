@@ -15,6 +15,7 @@ Generate new input files
 - Go
 - C 
 - Perl
+- Ocaml
 
 ### Wishlist
 - C++
@@ -22,7 +23,6 @@ Generate new input files
 - Javascript (Node.js)
 - Python
 - C#
-- OCaml
 - Bash
 
 ### General API
