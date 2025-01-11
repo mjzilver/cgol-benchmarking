@@ -29,7 +29,7 @@ func main() {
 
 	board := parseBoard()
 
-	for _ = range amount {
+	for range amount {
 		board = nextState(board)
 	}
 

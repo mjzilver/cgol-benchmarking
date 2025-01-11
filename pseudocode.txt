@@ -5,7 +5,7 @@ MAIN:
         --silent: If true, do not print
 
     Initialize the board:
-        Load the initial state into a 2D array
+        Load the initial state from file into a 2D array
 
     RUN GAME OF LIFE:
         Loop for the number of iterations (--amount):
@@ -13,7 +13,7 @@ MAIN:
             Replace the current state with the new state
 
     If not in --silent mode:
-        Print the final board state to the console
+        Print the final board state to the output.txt
 
     Exit successfully
 

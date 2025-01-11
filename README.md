@@ -20,23 +20,7 @@ Generate new input files
 
 ### Wishlist
 - C++
-- Javascript (Node.js)
+- Zig
 - Python
 - C#
 - Bash
-
-### General API
-The general API for all the implementations is as follows:
-
---silent flag: If this flag is set, the program will not print the final state of the board. This is useful for debugging.
-
---amount flag: This flag is used to specify the number of iterations the game should run for.
-
---file flag: This flag is used to specify the file from which the initial state of the board should be read. 
-
-You don't have to validate anything just assume the input it always correct.
-
-### Rules
-- No AI code generation. (Not fun)
-- No dependencies.
-- Cells must wrap around the edges. (Less chance of total cell death)
