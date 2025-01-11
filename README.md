@@ -16,10 +16,10 @@ Generate new input files
 - C 
 - Perl
 - Ocaml
+- Rust
 
 ### Wishlist
 - C++
-- Rust
 - Javascript (Node.js)
 - Python
 - C#

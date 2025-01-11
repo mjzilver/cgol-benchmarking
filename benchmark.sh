@@ -30,8 +30,8 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-executables=("./go/bin/cgol" "./c/bin/cgol" "perl ./perl/cgol.pl" "./ocaml/bin/cgol")
-names=("go" "c" "perl" "ocaml") 
+executables=("./go/bin/cgol" "./c/bin/cgol" "perl ./perl/cgol.pl" "./ocaml/bin/cgol" "./rust/bin/cgol")
+names=("go" "c" "perl" "ocaml" "rust") 
 timestamp=$(date +%s)
 
 mkdir -p logs

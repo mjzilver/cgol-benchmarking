@@ -19,6 +19,7 @@ compile:
 	cd go && make
 	cd c && make
 	cd ocaml && make
+	cd rust && make
 
 .PHONY: web
 web:
