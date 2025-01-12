@@ -37,8 +37,16 @@ executables=(
     "perl ./perl/cgol.pl"
     "./ocaml/bin/cgol"
     "./rust/bin/cgol"
+    "./csharp/bin/cgol"
 )
-names=("go" "c" "perl" "ocaml" "rust")
+names=(
+    "go" 
+    "c" 
+    "perl" 
+    "ocaml" 
+    "rust" 
+    "csharp"
+)
 timestamp=$(date +%s)
 timeout=$((20 * 1000))
 

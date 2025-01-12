@@ -1,7 +1,7 @@
 .PHONY: run build clean
 
 build:
-	go build -o bin/cgol main.go
+	go build -o bin/cgol -ldflags="-s -w" main.go
 
 run:
 	go run main.go --file ../input.txt --amount 10

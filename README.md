@@ -17,10 +17,22 @@ Generate new input files
 - Perl
 - Ocaml
 - Rust
+- C#
 
 ### Wishlist
 - C++
 - Zig
 - Python
-- C#
 - Bash
+
+## Results  
+Board size: 50x50 & 1000 generations
+
+| Language | Time (ms) |
+|----------|-----------|
+| C        | 109       |
+| Rust     | 115       |
+| Go       | 292       |
+| C#       | 359       |
+| OCaml    | 2047      |
+| Perl     | 12134     |

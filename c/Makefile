@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -std=c99
+CFLAGS = -Wall -std=c99 -O3
 BIN_DIR = bin
 EXE_NAME = cgol
 

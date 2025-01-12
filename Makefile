@@ -20,6 +20,7 @@ compile:
 	cd c && make
 	cd ocaml && make
 	cd rust && make
+	cd csharp && make
 
 .PHONY: web
 web:
