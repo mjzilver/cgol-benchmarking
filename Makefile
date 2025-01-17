@@ -1,18 +1,16 @@
 .PHONY: bench gen bench-gen
 
 bench:
-	./benchmark.sh
+	go run ./bench.go --chance 50 --amount 1000 --iterations 100
 
-gen:
-	./generate.sh
-
-bench-gen: gen bench
+bench-gen: 
+	go run ./bench.go --generate --size 50 --chance 50 --amount 1000 --iterations 100
 
 fresh: compile gen bench
 
 .PHONY: light
 light:
-	./benchmark.sh --iterations 10 --amount 30
+	go run ./bench.go --iterations 10 --amount 30
 
 .PHONY: compile
 compile:

@@ -19,20 +19,13 @@ Generate new input files
 - Rust
 - C#
 
-### Wishlist
-- C++
-- Zig
-- Python
-- Bash
-
 ## Results  
-Board size: 50x50 & 1000 generations
-
-| Language | Time (ms) |
-|----------|-----------|
-| C        | 109       |
-| Rust     | 115       |
-| Go       | 292       |
-| C#       | 359       |
-| OCaml    | 2047      |
-| Perl     | 12134     |
+Benchmark for a 50x50 board with 1000 generations with a 30 sec timeout
+| Language     | Avg Time ms  | Iterations   |
+|--------------|--------------|--------------|
+| C            | 105.15       | 100          |
+| Rust         | 107.03       | 100          |
+| C#           | 265.60       | 100          |
+| Go           | 285.57       | 100          |
+| OCaml        | 1934.83      | 16           |
+| Perl         | 11015.35     | 3            |

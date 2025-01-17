@@ -19,7 +19,7 @@ var (
 )
 
 func init() {
-	flag.StringVar(&inputFile, "file", "invalid", "Input file containing initial board state")
+	flag.StringVar(&inputFile, "file", "<flag not provided>", "Input file containing initial board state")
 	flag.IntVar(&amount, "amount", -1, "Number of iterations")
 	flag.BoolVar(&silent, "silent", false, "If true, do not print")
 }
