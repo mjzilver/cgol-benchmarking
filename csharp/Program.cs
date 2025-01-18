@@ -118,7 +118,7 @@ class Program
                 {
                     writer.Write(board[y, x]);
                 }
-                writer.WriteLine();
+                writer.Write("\n");
             }
         }
     }

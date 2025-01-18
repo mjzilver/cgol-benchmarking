@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
 	"os"
@@ -28,9 +27,10 @@ func main() {
 	flag.Parse()
 
 	board := parseBoard()
+	buffer := initBoard()
 
 	for range amount {
-		board = nextState(board)
+		board, buffer = nextState(board, buffer)
 	}
 
 	if !silent {
@@ -47,45 +47,36 @@ func initBoard() [][]int {
 }
 
 func parseBoard() [][]int {
-	var res [][]int
-
-	file, err := os.Open(inputFile)
+	fileContent, err := os.ReadFile(inputFile)
 	if err != nil {
-		panic(fmt.Sprintf("File %s not found!", inputFile))
+		panic(fmt.Sprintf("Error reading file %s: %v", inputFile, err))
 	}
 
-	fileScanner := bufio.NewScanner(file)
-	fileScanner.Split(bufio.ScanLines)
-	row := 0
+	lines := strings.Split(strings.TrimSpace(string(fileContent)), "\n")
 
-	for fileScanner.Scan() {
-		str := fileScanner.Text()
-		if size == -1 {
-			size = len(str)
-			res = initBoard()
-		}
+	size = len(lines)
+	board := initBoard()
 
-		for i, ch := range str {
-			res[row][i] = int(ch - '0')
+	for row, line := range lines {
+		for col, ch := range line {
+			board[row][col] = int(ch - '0')
 		}
-		row = row + 1
 	}
 
-	return res
+	return board
 }
 
-func nextState(board [][]int) [][]int {
-	res := initBoard()
-
-	for y := range size {
-		for x := range size {
+func nextState(board, buffer [][]int) ([][]int, [][]int) {
+	for y := 0; y < size; y++ {
+		for x := 0; x < size; x++ {
 			if shouldCellLive(board, y, x) {
-				res[y][x] = 1
+				buffer[y][x] = 1
+			} else {
+				buffer[y][x] = 0
 			}
 		}
 	}
-
-	return res
+	return buffer, board
 }
 
 var (

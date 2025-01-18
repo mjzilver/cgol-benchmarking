@@ -23,15 +23,17 @@ var (
 )
 
 type Exe struct {
-	Name       string
-	Args       []string
+	Name string
+	Args []string
+	Dir  string
+
 	Average    float32
 	Benchmarks []int64
 	TotalTime  int64
 }
 
 const (
-	boardFile = "input.txt"
+	boardFile = "../input.txt"
 )
 
 func init() {
@@ -48,24 +50,24 @@ func main() {
 	flag.Parse()
 
 	exes := []Exe{
-		{Name: "Go", Args: []string{"./go/bin/cgol"}},
-		{Name: "C", Args: []string{"./c/bin/cgol"}},
-		{Name: "Perl", Args: []string{"perl", "./perl/cgol.pl"}},
-		{Name: "OCaml", Args: []string{"./ocaml/bin/cgol"}},
-		{Name: "Rust", Args: []string{"./rust/bin/cgol"}},
-		{Name: "C#", Args: []string{"./csharp/bin/cgol"}},
+		{Name: "Go", Args: []string{"./bin/cgol"}, Dir: "./go"},
+		{Name: "C", Args: []string{"./bin/cgol"}, Dir: "./c"},
+		{Name: "Perl", Args: []string{"perl", "./cgol.pl"}, Dir: "./perl"},
+		{Name: "OCaml", Args: []string{"./bin/cgol"}, Dir: "./ocaml"},
+		{Name: "Rust", Args: []string{"./bin/cgol"}, Dir: "./rust"},
+		{Name: "C#", Args: []string{"./bin/cgol"}, Dir: "./csharp"},
 	}
 
 	if generate {
 		genBoard(size)
 	}
 
-	os.Mkdir("./logs", 0755)
-
 	stdArgs := []string{
 		"--file", boardFile,
 		"--amount", fmt.Sprintf("%d", amount),
-		"--silent",
+	}
+	if silent {
+		stdArgs = append(stdArgs, "--silent")
 	}
 
 	var wg sync.WaitGroup
@@ -83,16 +85,29 @@ func main() {
 		return exes[i].Average < exes[j].Average
 	})
 
-	fmt.Printf("Benchmark for a %dx%d board with %d generations with a %d sec timeout\n", size, size, amount, timeoutSec)
-
-	fmt.Printf("| %-12s | %-12s | %-12s |\n",
-		"Language", "Avg Time ms", "Iterations")
-	fmt.Printf("|%s|%s|%s|\n",
-		strings.Repeat("-", 14), strings.Repeat("-", 14), strings.Repeat("-", 14))
+	tableOutput := fmt.Sprintf("Benchmark for a %dx%d board with %d generations with a %d sec timeout\n", size, size, amount, timeoutSec)
+	tableOutput += fmt.Sprintf("| %-12s | %-12s | %-12s |\n", "Language", "Avg Time ms", "Iterations")
+	tableOutput += fmt.Sprintf("|%s|%s|%s|\n", strings.Repeat("-", 14), strings.Repeat("-", 14), strings.Repeat("-", 14))
 
 	for _, exe := range exes {
 		avgMilli := exe.Average / 1000
-		fmt.Printf("| %-12s | %-12.2f | %-12d |\n", exe.Name, avgMilli, len(exe.Benchmarks))
+		tableOutput += fmt.Sprintf("| %-12s | %-12.2f | %-12d |\n", exe.Name, avgMilli, len(exe.Benchmarks))
+	}
+
+	fmt.Println(tableOutput)
+
+	os.Mkdir("./logs", 0755)
+	logFileName := fmt.Sprintf("./logs/benchmark_%d.log", time.Now().Unix())
+	logFile, err := os.Create(logFileName)
+	if err != nil {
+		fmt.Println("Error creating log file:", err)
+		return
+	}
+	defer logFile.Close()
+
+	_, err = logFile.WriteString(tableOutput)
+	if err != nil {
+		fmt.Println("Error writing to log file:", err)
 	}
 }
 
@@ -103,6 +118,7 @@ func benchmarkExe(exe *Exe, stdArgs []string) {
 		cmd := exec.Command(exe.Args[0], exe.Args[1:]...)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
+		cmd.Dir = exe.Dir
 
 		startTime := time.Now().UnixMicro()
 		if err := cmd.Run(); err != nil {

@@ -13,19 +13,28 @@ Generate new input files
 
 ## Current implemented Languages
 - Go
-- C 
+- C (99)
 - Perl
-- Ocaml
+- Ocaml (Functional)
 - Rust
-- C#
+- C# (Mono)
 
 ## Results  
 Benchmark for a 50x50 board with 1000 generations with a 30 sec timeout
 | Language     | Avg Time ms  | Iterations   |
 |--------------|--------------|--------------|
-| C            | 105.15       | 100          |
-| Rust         | 107.03       | 100          |
-| C#           | 265.60       | 100          |
-| Go           | 285.57       | 100          |
-| OCaml        | 1934.83      | 16           |
-| Perl         | 11015.35     | 3            |
+| C            | 93.56        | 100          |
+| Rust         | 96.17        | 100          |
+| C#           | 257.70       | 100          |
+| Go           | 278.32       | 100          |
+| OCaml        | 2095.23      | 15           |
+| Perl         | 9924.07      | 4            |
+
+Note: All the code is idiomatic for the language and not hightly optimized, that is not what is being tested.
+
+## Time Complexity
+O(T * N^2)
+
+Where:
+- `T` is the number of generations.
+- `N` is the size.
