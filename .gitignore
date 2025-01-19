@@ -3,6 +3,7 @@ benchmark_*.log
 
 # binaries
 */bin
+*/obj
 
 # inputs and ouputs
 input.txt
@@ -12,3 +13,4 @@ notes.txt
 
 # IDE
 .vscode
+/.config

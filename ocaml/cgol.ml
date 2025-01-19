@@ -12,7 +12,12 @@ let parse_args () =
 
 let parse_line line =
   String.to_seq line 
-    |> Seq.map (fun c -> int_of_char c - int_of_char '0') 
+    |> Seq.map (fun c -> 
+      match c with
+      | '0' -> 0
+      | '1' -> 1
+      | _ -> failwith "Unknown char"
+    ) 
     |> Array.of_seq
 
 let parse_file filename =
@@ -48,7 +53,8 @@ let next_state board size =
         if neighbors = 2 || neighbors = 3 then 1 else 0
       else
         if neighbors = 3 then 1 else 0
-    ))
+    )
+  )
 
 let print_board board filename =
   let output = open_out filename in

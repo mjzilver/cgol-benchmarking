@@ -16,8 +16,6 @@ $(BIN)/$(TARGET): $(SRC) $(BIN)
 run: $(BIN)/$(TARGET)
 	mono $(BIN)/$(TARGET) --file ../input.txt --amount 10
 
-clean:
-	rm -f $(BIN)/$(TARGET)
-
-compare:
-	@diff -u ./output.txt ../c/output.txt
+.PHONY: dotnet
+dotnet:
+	dotnet publish --configuration Release --self-contained true -r linux-x64 -p:PublishSingleFile=true -o ./bin/dotnet

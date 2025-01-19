@@ -33,7 +33,7 @@ type Exe struct {
 }
 
 const (
-	boardFile = "../input.txt"
+	boardFile = "./input.txt"
 )
 
 func init() {
@@ -55,7 +55,9 @@ func main() {
 		{Name: "Perl", Args: []string{"perl", "./cgol.pl"}, Dir: "./perl"},
 		{Name: "OCaml", Args: []string{"./bin/cgol"}, Dir: "./ocaml"},
 		{Name: "Rust", Args: []string{"./bin/cgol"}, Dir: "./rust"},
-		{Name: "C#", Args: []string{"./bin/cgol"}, Dir: "./csharp"},
+		{Name: "C# (mono)", Args: []string{"./bin/cgol"}, Dir: "./csharp"},
+		{Name: "C# (.NET)", Args: []string{"./bin/dotnet/cgol"}, Dir: "./csharp"},
+		{Name: "F#", Args: []string{"./bin/cgol"}, Dir: "./fsharp"},
 	}
 
 	if generate {
@@ -63,7 +65,7 @@ func main() {
 	}
 
 	stdArgs := []string{
-		"--file", boardFile,
+		"--file", fmt.Sprintf(".%s", boardFile), // Make ./ into ../
 		"--amount", fmt.Sprintf("%d", amount),
 	}
 	if silent {

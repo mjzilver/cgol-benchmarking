@@ -4,7 +4,7 @@ using System.IO;
 class Program
 {
     const string OUTPUT_FILE = "output.txt";
-    static int[,] board;
+    static int[,] board = new int[size, size];
     static int size = -1;
     static int amount = -1;
     static bool silent = false;

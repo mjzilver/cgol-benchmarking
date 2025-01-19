@@ -15,20 +15,23 @@ Generate new input files
 - Go
 - C (99)
 - Perl
-- Ocaml (Functional)
+- Ocaml
 - Rust
-- C# (Mono)
+- C# (Mono & .NET)
+- FSharp 
 
 ## Results  
 Benchmark for a 50x50 board with 1000 generations with a 30 sec timeout
 | Language     | Avg Time ms  | Iterations   |
 |--------------|--------------|--------------|
-| C            | 93.56        | 100          |
-| Rust         | 96.17        | 100          |
-| C#           | 257.70       | 100          |
-| Go           | 278.32       | 100          |
-| OCaml        | 2095.23      | 15           |
-| Perl         | 9924.07      | 4            |
+| C            | 117.48       | 100          |
+| Rust         | 126.77       | 100          |
+| C# (mono)    | 270.27       | 100          |
+| Go           | 315.10       | 96           |
+| C# (.NET)    | 1437.91      | 21           |
+| F#           | 1698.31      | 18           |
+| OCaml        | 2385.61      | 13           |
+| Perl         | 11434.61     | 3            |
 
 Note: All the code is idiomatic for the language and not hightly optimized, that is not what is being tested.
 

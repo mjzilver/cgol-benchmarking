@@ -1,7 +1,7 @@
 .PHONY: bench gen bench-gen
 
 bench:
-	go run ./bench.go --chance 50 --amount 1000 --iterations 100 --silent
+	go run ./bench.go --amount 1000 --iterations 100 --silent
 
 bench-gen: 
 	go run ./bench.go --generate --size 50 --chance 50 --amount 1000 --iterations 100 --silent
@@ -14,11 +14,7 @@ light:
 
 .PHONY: compile
 compile:
-	cd go && make
-	cd c && make
-	cd ocaml && make
-	cd rust && make
-	cd csharp && make
+	bash ./compile-all.sh
 
 .PHONY: web
 web:
@@ -29,8 +25,9 @@ fresh-comp: fresh compare
 
 .PHONY: compare
 compare:
-	@diff ./c/output.txt ./go/output.txt
-	@diff ./csharp/output.txt ./go/output.txt
-	@diff ./ocaml/output.txt ./go/output.txt
-	@diff ./rust/output.txt ./go/output.txt
-	@diff ./perl/output.txt ./go/output.txt
+	diff ./c/output.txt ./go/output.txt
+	diff ./csharp/output.txt ./go/output.txt
+	diff ./ocaml/output.txt ./go/output.txt
+	diff ./rust/output.txt ./go/output.txt
+	diff ./perl/output.txt ./go/output.txt
+	diff ./fsharp/output.txt ./go/output.txt
