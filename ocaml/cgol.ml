@@ -1,4 +1,12 @@
-let parse_args () =
+type board = int array array
+
+type args = {
+  silent : bool;
+  amount : int;
+  file : string;
+}
+
+let parse_args () : args =
   let file = ref "" in
   let amount = ref 0 in
   let silent = ref false in
@@ -8,9 +16,9 @@ let parse_args () =
     ("--silent", Arg.Set silent, "Run without printing the result")
   ] in
   Arg.parse flags (fun _ -> ()) "Usage: program --file <filename> --amount <number>";
-  (!file, !amount, !silent)
+  { file = !file; amount = !amount; silent = !silent }
 
-let parse_line line =
+let parse_line (line : string) : int array =
   String.to_seq line 
     |> Seq.map (fun c -> 
       match c with
@@ -20,7 +28,7 @@ let parse_line line =
     ) 
     |> Array.of_seq
 
-let parse_file filename =
+let parse_file (filename : string) : int * board =
   let input = open_in filename in
   let rec parse_lines acc =
     match input_line input with
@@ -38,14 +46,14 @@ let directions = [
   ( 1, -1); ( 1, 0); ( 1, 1)
 ]
 
-let count_neighbors board size (y, x) =
+let count_neighbors (board : board) (size : int) (y, x) =
   List.fold_left (fun acc (dy, dx) ->
     let ny = (y + dy + size) mod size in
     let nx = (x + dx + size) mod size in
     acc + board.(ny).(nx)
   ) 0 directions
 
-let next_state board size =
+let next_state (board : board) (size : int) : board =
   Array.init size (fun y ->
     Array.init size (fun x ->
       let neighbors = count_neighbors board size (y, x) in
@@ -56,24 +64,30 @@ let next_state board size =
     )
   )
 
-let print_board board filename =
+let print_board (board : board) (filename : string) =
+  let board_string =
+    Array.map (fun row ->
+      Array.map string_of_int row
+      |> Array.to_list
+      |> String.concat ""
+    ) board
+    |> Array.to_list
+    |> String.concat "\n"
+  in
   let output = open_out filename in
-  Array.iter (fun row ->
-    Array.iter (fun value -> output_string output (string_of_int value)) row;
-    output_string output "\n";
-  ) board;
-  close_out output
+  output_string output (board_string ^ "\n");
+  close_out output  
 
-let simulate file amount silent output =
-  let size, board = parse_file file in
+let simulate (args : args) (output : string) =
+  let size, board = parse_file args.file in
   let rec simulate_steps board n =
     if n = 0 then board
     else simulate_steps (next_state board size) (n - 1)
   in
-  let final_board = simulate_steps board amount in
-  if not silent then print_board final_board output
+  let final_board = simulate_steps board args.amount in
+  if not args.silent then print_board final_board output
 
 let () =
-  let file, amount, silent = parse_args () in
+  let args = parse_args () in
   let output = "./output.txt" in
-  simulate file amount silent output
+  simulate args output
