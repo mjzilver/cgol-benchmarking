@@ -10,7 +10,7 @@ fresh: compile light
 
 .PHONY: light
 light:
-	go run ./bench.go --iterations 10 --amount 30
+	go run ./bench.go --iterations 10 --amount 10 --generate --size 10 
 
 .PHONY: compile
 compile:
@@ -31,3 +31,4 @@ compare:
 	diff ./rust/output.txt ./go/output.txt
 	diff ./perl/output.txt ./go/output.txt
 	diff ./fsharp/output.txt ./go/output.txt
+	diff ./zig/output.txt ./go/output.txt

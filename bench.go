@@ -8,7 +8,6 @@ import (
 	"os/exec"
 	"sort"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -55,9 +54,9 @@ func main() {
 		{Name: "Perl", Args: []string{"perl", "./cgol.pl"}, Dir: "./perl"},
 		{Name: "OCaml", Args: []string{"./bin/cgol"}, Dir: "./ocaml"},
 		{Name: "Rust", Args: []string{"./bin/cgol"}, Dir: "./rust"},
-		{Name: "C# (mono)", Args: []string{"./bin/cgol"}, Dir: "./csharp"},
-		{Name: "C# (.NET)", Args: []string{"./bin/dotnet/cgol"}, Dir: "./csharp"},
+		{Name: "C#", Args: []string{"./bin/dotnet/cgol"}, Dir: "./csharp"},
 		{Name: "F#", Args: []string{"./bin/cgol"}, Dir: "./fsharp"},
+		{Name: "Zig", Args: []string{"./bin/cgol"}, Dir: "./zig"},
 	}
 
 	if generate {
@@ -72,16 +71,10 @@ func main() {
 		stdArgs = append(stdArgs, "--silent")
 	}
 
-	var wg sync.WaitGroup
 	for i := range exes {
-		wg.Add(1)
-		go func(exe *Exe) {
-			defer wg.Done()
-			benchmarkExe(exe, stdArgs)
-			exe.Average = float32(exe.TotalTime) / float32(len(exe.Benchmarks))
-		}(&exes[i])
+		benchmarkExe(&exes[i], stdArgs)
+		exes[i].Average = float32(exes[i].TotalTime) / float32(len(exes[i].Benchmarks))
 	}
-	wg.Wait()
 
 	sort.Slice(exes, func(i, j int) bool {
 		return exes[i].Average < exes[j].Average

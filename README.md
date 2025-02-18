@@ -17,21 +17,22 @@ Generate new input files
 - Perl
 - Ocaml
 - Rust
-- C# (Mono & .NET)
+- C#
 - FSharp 
+- Zig
 
 ## Results  
 Benchmark for a 50x50 board with 1000 generations with a 30 sec timeout
 | Language     | Avg Time ms  | Iterations   |
 |--------------|--------------|--------------|
-| C            | 117.48       | 100          |
-| Rust         | 126.77       | 100          |
-| C# (mono)    | 270.27       | 100          |
-| Go           | 315.10       | 96           |
-| C# (.NET)    | 1437.91      | 21           |
-| F#           | 1698.31      | 18           |
-| OCaml        | 2385.61      | 13           |
-| Perl         | 11434.61     | 3            |
+| C            | 63.95        | 100          |
+| Rust         | 73.25        | 100          |
+| Zig          | 160.41       | 100          |
+| C#           | 227.94       | 100          |
+| F#           | 344.09       | 88           |
+| Go           | 464.56       | 65           |
+| OCaml        | 1820.10      | 17           |
+| Perl         | 10335.59     | 3            |
 
 Note: All the code is idiomatic for the language and not hightly optimized, that is not what is being tested.
 
