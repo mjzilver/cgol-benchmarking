@@ -4,19 +4,22 @@ type args = {
   silent : bool;
   amount : int;
   file : string;
+  server : bool;
 }
 
 let parse_args () : args =
   let file = ref "" in
   let amount = ref 0 in
   let silent = ref false in
+  let server = ref false in
   let flags = [
     ("--file", Arg.Set_string file, "Input file to parse board");
     ("--amount", Arg.Set_int amount, "Amount to simulate");
     ("--silent", Arg.Set silent, "Run without printing the result")
+    ; ("--server", Arg.Set server, "Run in server mode (accept RUN/SHUTDOWN on stdin)")
   ] in
   Arg.parse flags (fun _ -> ()) "Usage: program --file <filename> --amount <number>";
-  { file = !file; amount = !amount; silent = !silent }
+  { file = !file; amount = !amount; silent = !silent; server = !server }
 
 let parse_line (line : string) : int array =
   String.to_seq line 
@@ -88,6 +91,35 @@ let simulate (args : args) (output : string) =
   if not args.silent then print_board final_board output
 
 let () =
-  let args = parse_args () in
-  let output = "./output.txt" in
-  simulate args output
+  let base_args = parse_args () in
+  if base_args.server then (
+    print_endline "READY";
+    try
+      while true do
+        let line = read_line () in
+        if String.trim line = "SHUTDOWN" then raise Exit;
+        if String.length line >= 4 && String.sub line 0 4 = "RUN " then (
+          let rest = String.sub line 4 (String.length line - 4) in
+          let parts = String.split_on_char ' ' rest |> List.filter (fun s -> String.length s > 0) in
+          match parts with
+          | file :: amt :: _ ->
+              let args = { base_args with file = file; amount = int_of_string amt } in
+              simulate args "./output.txt";
+              print_endline "DONE"
+          | file :: [] ->
+              let args = { base_args with file = file; amount = 1 } in
+              simulate args "./output.txt";
+              print_endline "DONE"
+          | _ -> print_endline "ERROR bad request"
+        ) else (
+          print_endline "ERROR unknown command"
+        )
+      done
+    with
+    | End_of_file -> ()
+    | Exit -> ()
+  ) else (
+    let args = base_args in
+    let output = "./output.txt" in
+    simulate args output
+  )

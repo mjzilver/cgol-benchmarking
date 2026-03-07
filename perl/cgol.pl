@@ -4,25 +4,31 @@ use strict;
 use warnings;
 use Getopt::Long;
 
+# Disable buffering for immediate output
+$| = 1;  
+
 my $input_file;
 my $amount;
 my $silent = '';
+my $server = '';
 my $ouput_file = "./output.txt";
 
 GetOptions ("amount=i" => \$amount, 
             "file=s"   => \$input_file, 
-            "silent"  => \$silent)
+            "silent"  => \$silent,
+            "server"  => \$server)
 or die("Error in command line arguments\n");
 
-if (!defined $input_file || !defined $amount) {
-    print "Missing --file or --amount\n";
-    die;
+if (!$server) {
+    if (!defined $input_file || !defined $amount) {
+        print "Missing --file or --amount\n";
+        die;
+    }
 }
 
 my @board;
 my $size = -1;
 
-# parse file
 sub parse_file {
     open(FH, '<', $input_file) or die "Cannot open $input_file: $!\n";
 
@@ -123,4 +129,23 @@ sub main_loop {
     }
 }
 
-main_loop();
+if ($server) {
+    print "READY\n";
+    while (my $line = <STDIN>) {
+        chomp $line;
+        next if $line =~ /^\s*$/;
+        if ($line eq 'SHUTDOWN') { last; }
+        if ($line =~ /^RUN\s+(\S+)(?:\s+(\d+))?/) {
+            my $f = $1;
+            my $n = defined $2 ? $2 : 1;
+            $input_file = $f;
+            $amount = $n;
+            main_loop();
+            print "DONE\n";
+        } else {
+            print "ERROR unknown command\n";
+        }
+    }
+} else {
+    main_loop();
+}

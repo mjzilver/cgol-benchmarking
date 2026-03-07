@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
+	"io"
 	"math/rand"
 	"os"
 	"os/exec"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -56,11 +59,15 @@ func main() {
 	exes := []Exe{
 		{Name: "Go", Args: []string{"./bin/cgol"}, Dir: "./go"},
 		{Name: "C", Args: []string{"./bin/cgol"}, Dir: "./c"},
+		{Name: "C++", Args: []string{"./bin/cgol"}, Dir: "./cpp"},
 		{Name: "Perl", Args: []string{"perl", "./cgol.pl"}, Dir: "./perl"},
+		{Name: "Python", Args: []string{"python3", "./cgol.py"}, Dir: "./python"},
 		{Name: "OCaml", Args: []string{"./bin/cgol"}, Dir: "./ocaml"},
 		{Name: "Rust", Args: []string{"./bin/cgol"}, Dir: "./rust"},
 		{Name: "C#", Args: []string{"./bin/dotnet/cgol"}, Dir: "./csharp"},
 		{Name: "F#", Args: []string{"./bin/cgol"}, Dir: "./fsharp"},
+		{Name: "Java", Args: []string{"java", "-jar", "./bin/cgol.jar"}, Dir: "./java"},
+		{Name: "Node.js", Args: []string{"node", "./cgol.js"}, Dir: "./nodejs"},
 	}
 
 	if generate {
@@ -77,7 +84,9 @@ func main() {
 
 	for i := range exes {
 		benchmarkExe(&exes[i], stdArgs)
-		exes[i].Average = float32(exes[i].TotalTime) / float32(len(exes[i].Benchmarks))
+		if len(exes[i].Benchmarks) > 0 {
+			exes[i].Average = float32(exes[i].TotalTime) / float32(len(exes[i].Benchmarks))
+		}
 	}
 
 	sort.Slice(exes, func(i, j int) bool {
@@ -111,26 +120,155 @@ func main() {
 }
 
 func benchmarkExe(exe *Exe, stdArgs []string) {
-	exe.Args = append(exe.Args, stdArgs...)
 	fmt.Printf("Starting benchmark: %s\n", exe.Name)
 
-	for i := range iterations {
-		fmt.Printf("\r  Progress: %d/%d", i+1, iterations)
+	filePath, reqAmount := parseStdArgs(stdArgs)
 
-		cmd := exec.Command(exe.Args[0], exe.Args[1:]...)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		cmd.Dir = exe.Dir
+	args := append([]string{}, exe.Args...)
+	args = append(args, "--server")
+	if silent {
+		args = append(args, "--silent")
+	}
 
-		startTime := time.Now().UnixMicro()
-		if err := cmd.Run(); err != nil {
-			fmt.Printf("Error executing %s: %s\n", exe, err)
-			continue
+	cmd, stdin, reader, err := startServer(args, exe.Dir)
+	if err != nil {
+		fmt.Printf("Error starting server: %s\n", err)
+		return
+	}
+
+	defer func() {
+		cleanupServer(cmd, stdin)
+	}()
+
+	if err := waitReady(reader); err != nil {
+		fmt.Println("Error waiting for READY:", err)
+		cmd.Process.Kill()
+		return
+	}
+
+	runIterations(reader, stdin, exe, filePath, reqAmount, cmd)
+}
+
+func parseStdArgs(stdArgs []string) (string, int) {
+	filePath := ""
+	reqAmount := amount
+	for i := 0; i < len(stdArgs); i++ {
+		if stdArgs[i] == "--file" && i+1 < len(stdArgs) {
+			filePath = stdArgs[i+1]
+			i++
+		} else if stdArgs[i] == "--amount" && i+1 < len(stdArgs) {
+			if v, err := strconv.Atoi(stdArgs[i+1]); err == nil {
+				reqAmount = v
+			}
+			i++
 		}
-		endTime := time.Now().UnixMicro()
+	}
+	return filePath, reqAmount
+}
 
-		exe.Benchmarks = append(exe.Benchmarks, endTime-startTime)
-		exe.TotalTime = exe.TotalTime + endTime - startTime
+func startServer(args []string, dir string) (*exec.Cmd, io.WriteCloser, *bufio.Reader, error) {
+	cmd := exec.Command(args[0], args[1:]...)
+	stdin, err := cmd.StdinPipe()
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	cmd.Stderr = os.Stderr
+	cmd.Dir = dir
+
+	if err := cmd.Start(); err != nil {
+		return nil, nil, nil, err
+	}
+
+	reader := bufio.NewReader(stdout)
+	return cmd, stdin, reader, nil
+}
+
+func cleanupServer(cmd *exec.Cmd, stdin io.WriteCloser) {
+	if stdin != nil {
+		stdin.Write([]byte("SHUTDOWN\n"))
+		stdin.Close()
+	}
+	if cmd.Process != nil {
+		cmd.Process.Kill()
+		cmd.Wait()
+	}
+}
+
+func waitReady(reader *bufio.Reader) error {
+	readyCh := make(chan string, 1)
+	errCh := make(chan error, 1)
+	go func() {
+		s, err := reader.ReadString('\n')
+		if err != nil {
+			errCh <- err
+			return
+		}
+		readyCh <- s
+	}()
+
+	select {
+	case s := <-readyCh:
+		if strings.TrimSpace(s) != "READY" {
+			return fmt.Errorf("server did not signal READY, got: %s", s)
+		}
+		return nil
+	case e := <-errCh:
+		return e
+	case <-time.After(5 * time.Second):
+		return fmt.Errorf("timeout waiting for server READY")
+	}
+}
+
+func runIterations(
+	reader *bufio.Reader,
+	stdin io.WriteCloser,
+	exe *Exe,
+	filePath string,
+	reqAmount int,
+	cmd *exec.Cmd,
+) {
+	for i := 0; i < iterations; i++ {
+		fmt.Printf("\r  Progress: %d/%d ", i+1, iterations)
+		os.Stdout.Sync()
+
+		req := fmt.Sprintf("RUN %s %d\n", filePath, reqAmount)
+		startTime := time.Now().UnixMicro()
+		if _, err := stdin.Write([]byte(req)); err != nil {
+			fmt.Println("Error writing to server stdin:", err)
+			return
+		}
+
+		respCh := make(chan string, 1)
+		respErr := make(chan error, 1)
+		go func() {
+			s, err := reader.ReadString('\n')
+			if err != nil {
+				respErr <- err
+				return
+			}
+			respCh <- s
+		}()
+
+		select {
+		case <-respCh:
+			endTime := time.Now().UnixMicro()
+			dur := endTime - startTime
+			exe.Benchmarks = append(exe.Benchmarks, dur)
+			exe.TotalTime += dur
+		case e := <-respErr:
+			fmt.Println("\nError reading response:", e)
+			cleanupServer(cmd, stdin)
+			return
+		case <-time.After(time.Duration(timeoutSec) * time.Second):
+			fmt.Println("\nIteration timeout")
+			cleanupServer(cmd, stdin)
+			return
+		}
+
 		if exe.TotalTime > int64(timeoutSec*1000*1000) {
 			fmt.Println()
 			return

@@ -8,9 +8,17 @@ MAIN:
         Load the initial state from file into a 2D array
 
     RUN GAME OF LIFE:
-        Loop for the number of iterations (--amount):
-            Compute the next state of the board based on the rules
-            Replace the current state with the new state
+        If started with --server:
+        Print READY to stdout and flush
+        Loop reading lines from stdin:
+            If line == "SHUTDOWN": exit loop and terminate
+            If line starts with "RUN ":
+                Parse request: RUN <file> <amount>
+                Load the board from <file>
+                Run the game loop for <amount> iterations 
+                If not in --silent mode: print final board to output.txt
+                Write response: DONE and flush
+            Else: write an ERROR response
 
     If not in --silent mode:
         Print the final board state to the output.txt
@@ -35,3 +43,4 @@ FUNCTIONS:
             Skip the center cell itself
             If the neighbor cell is alive, increment count
         Return count
+

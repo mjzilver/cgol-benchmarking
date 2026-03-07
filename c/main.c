@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <sys/time.h>
 
 #define OUTPUT_FILE "output.txt"
 
@@ -118,6 +119,7 @@ void parseBoard() {
 }
 
 int main(int argc, char *argv[]) {
+    int server_mode = 0;
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--file") == 0) {
             inputFile = argv[++i];
@@ -125,19 +127,68 @@ int main(int argc, char *argv[]) {
             amount = atoi(argv[++i]);
         } else if (strcmp(argv[i], "--silent") == 0) {
             silent = 1;
+        } else if (strcmp(argv[i], "--server") == 0) {
+            server_mode = 1;
         }
     }
 
-    parseBoard();
+    if (!server_mode) {
+        parseBoard();
 
-    for (int i = 0; i < amount; i++) {
-        board = nextState();
+        for (int i = 0; i < amount; i++) {
+            board = nextState();
+        }
+
+        if (!silent) {
+            printBoard();
+        }
+
+        freeBoard();
+        return 0;
     }
 
-    if (!silent) {
-        printBoard();
+    printf("READY\n");
+    fflush(stdout);
+
+    char line[1024];
+    while (fgets(line, sizeof(line), stdin)) {
+        char *nl = strchr(line, '\n');
+        if (nl) *nl = '\0';
+
+        if (strncmp(line, "SHUTDOWN", 8) == 0) {
+            break;
+        }
+
+        if (strncmp(line, "RUN ", 4) == 0) {
+            char req_file[512];
+            int req_amount = 1;
+            if (sscanf(line + 4, "%511s %d", req_file, &req_amount) < 1) {
+                printf("ERROR bad request\n");
+                fflush(stdout);
+                continue;
+            }
+
+            inputFile = req_file;
+            size = -1;
+            parseBoard();
+
+            for (int i = 0; i < req_amount; i++) {
+                board = nextState();
+            }
+
+            if (!silent) {
+                printBoard();
+            }
+
+            freeBoard();
+
+            printf("DONE\n");
+            fflush(stdout);
+        } else {
+            printf("ERROR unknown command\n");
+            fflush(stdout);
+        }
     }
 
-    freeBoard();
     return 0;
 }

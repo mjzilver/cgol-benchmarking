@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Diagnostics;
 
 class Program
 {
@@ -19,6 +20,7 @@ class Program
 
     static void Main(string[] args)
     {
+        bool serverMode = false;
         for (int i = 0; i < args.Length; i++)
         {
             if (args[i] == "--file")
@@ -33,18 +35,69 @@ class Program
             {
                 silent = true;
             }
+            else if (args[i] == "--server")
+            {
+                serverMode = true;
+            }
         }
 
-        ParseBoard();
-
-        for (int i = 0; i < amount; i++)
+        if (!serverMode)
         {
-            board = NextState();
+            ParseBoard();
+
+            for (int i = 0; i < amount; i++)
+            {
+                board = NextState();
+            }
+
+            if (!silent)
+            {
+                PrintBoard();
+            }
+
+            return;
         }
 
-        if (!silent)
+        Console.WriteLine("READY");
+        Console.Out.Flush();
+
+        string? line;
+        while ((line = Console.ReadLine()) != null)
         {
-            PrintBoard();
+            if (line.Trim().Length == 0) continue;
+            if (line.StartsWith("SHUTDOWN")) break;
+
+            if (line.StartsWith("RUN "))
+            {
+                var parts = line[4..].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length >= 1)
+                {
+                    inputFile = parts[0];
+                    int reqAmount = 1;
+                    if (parts.Length >= 2) int.TryParse(parts[1], out reqAmount);
+
+                    ParseBoard();
+                    for (int i = 0; i < reqAmount; i++)
+                    {
+                        board = NextState();
+                    }
+
+                    if (!silent) PrintBoard();
+
+                    Console.WriteLine("DONE");
+                    Console.Out.Flush();
+                }
+                else
+                {
+                    Console.WriteLine("ERROR bad request");
+                    Console.Out.Flush();
+                }
+            }
+            else
+            {
+                Console.WriteLine("ERROR unknown command");
+                Console.Out.Flush();
+            }
         }
     }
 

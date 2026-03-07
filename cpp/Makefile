@@ -1,13 +1,13 @@
-CC = gcc
-CFLAGS = -Wall -std=c99 -O3
+CXX = g++
+CXXFLAGS = -Wall -std=c++17 -O3
 BIN_DIR = bin
 EXE_NAME = cgol
 
 all: build
 
-build: main.c
+build: main.cpp
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $(BIN_DIR)/$(EXE_NAME) main.c
+	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/$(EXE_NAME) main.cpp
 
 clean:
 	rm -rf $(BIN_DIR)

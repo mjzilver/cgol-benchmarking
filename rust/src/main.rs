@@ -1,18 +1,24 @@
-use std::fs::{File, read_to_string};
-use std::io::Write;
+use std::fs::{read_to_string, File};
+use std::io::{self, BufRead, Write};
 use std::process::exit;
 
 const OUTPUT_FILE: &str = "output.txt";
 const NEIGHBORS: [(i32, i32); 8] = [
-    (-1, -1), (-1, 0), (-1, 1),
-    (0, -1),           (0, 1),
-    (1, -1),  (1, 0),  (1, 1),
+    (-1, -1),
+    (-1, 0),
+    (-1, 1),
+    (0, -1),
+    (0, 1),
+    (1, -1),
+    (1, 0),
+    (1, 1),
 ];
 
 fn parse_file(filename: &str) -> Vec<Vec<i8>> {
     let mut result = Vec::new();
     for line in read_to_string(filename).unwrap().lines() {
-        let row: Vec<i8> = line.chars()
+        let row: Vec<i8> = line
+            .chars()
             .filter_map(|c| c.to_digit(10).map(|d| d as i8))
             .collect();
         result.push(row);
@@ -57,7 +63,8 @@ fn print_board(board: &Vec<Vec<i8>>) {
         }
         buffer.push('\n');
     }
-    file.write_all(buffer.as_bytes()).expect("Unable to write data");
+    file.write_all(buffer.as_bytes())
+        .expect("Unable to write data");
 }
 
 fn main() {
@@ -65,6 +72,7 @@ fn main() {
     let mut input_file = None;
     let mut amount: Option<i32> = None;
     let mut silent = false;
+    let mut server_mode = false;
 
     let mut args_iter = args.iter().skip(1);
     while let Some(arg) = args_iter.next() {
@@ -72,6 +80,7 @@ fn main() {
             "--file" => input_file = args_iter.next(),
             "--amount" => amount = args_iter.next().and_then(|s| s.parse().ok()),
             "--silent" => silent = true,
+            "--server" => server_mode = true,
             _ => {
                 eprintln!("Unknown argument: {}", arg);
                 exit(1);
@@ -79,23 +88,62 @@ fn main() {
         }
     }
 
-    let input_file = match input_file {
-        Some(file) => file,
-        None => {
-            eprintln!("No input file specified");
-            exit(1);
+    if server_mode {
+        println!("READY");
+        let stdin = io::stdin();
+        for line in stdin.lock().lines() {
+            match line {
+                Ok(l) => {
+                    let l = l.trim();
+                    if l.is_empty() {
+                        continue;
+                    }
+                    if l == "SHUTDOWN" {
+                        break;
+                    }
+                    if l.starts_with("RUN ") {
+                        let rest = &l[4..];
+                        let mut parts = rest.split_whitespace();
+                        if let Some(f) = parts.next() {
+                            let n = parts
+                                .next()
+                                .and_then(|s| s.parse::<i32>().ok())
+                                .unwrap_or(1);
+                            let mut b = parse_file(f);
+                            for _ in 0..n {
+                                b = next_state(&b);
+                            }
+                            if !silent {
+                                print_board(&b);
+                            }
+                            println!("DONE");
+                        } else {
+                            println!("ERROR bad request");
+                        }
+                    } else {
+                        println!("ERROR unknown command");
+                    }
+                }
+                Err(_) => break,
+            }
         }
-    };
+    } else {
+        let input_file = match input_file {
+            Some(file) => file,
+            None => {
+                eprintln!("No input file specified");
+                exit(1);
+            }
+        };
 
-    let board = parse_file(input_file);
-
-    if let Some(amount) = amount {
-        let mut current_board = board;
-        for _ in 0..amount {
-            current_board = next_state(&current_board);
-        }
-        if !silent {
-            print_board(&current_board);
+        if let Some(amount) = amount {
+            let mut current_board = parse_file(&input_file);
+            for _ in 0..amount {
+                current_board = next_state(&current_board);
+            }
+            if !silent {
+                print_board(&current_board);
+            }
         }
     }
 }

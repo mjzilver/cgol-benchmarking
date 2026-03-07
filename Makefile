@@ -26,8 +26,12 @@ fresh-comp: fresh compare
 .PHONY: compare
 compare:
 	diff ./c/output.txt ./go/output.txt
+	diff ./cpp/output.txt ./go/output.txt
 	diff ./csharp/output.txt ./go/output.txt
 	diff ./ocaml/output.txt ./go/output.txt
 	diff ./rust/output.txt ./go/output.txt
 	diff ./perl/output.txt ./go/output.txt
+	diff ./python/output.txt ./go/output.txt
 	diff ./fsharp/output.txt ./go/output.txt
+	diff ./java/output.txt ./go/output.txt
+	diff ./nodejs/output.txt ./go/output.txt

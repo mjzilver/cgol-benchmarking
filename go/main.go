@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"os"
@@ -11,25 +12,32 @@ import (
 const outputFile = "output.txt"
 
 var (
-	inputFile string
-	size      = -1
-	amount    int
-	silent    bool
+	inputFile  string
+	size       = -1
+	amount     int
+	silent     bool
+	serverMode bool
 )
 
 func init() {
 	flag.StringVar(&inputFile, "file", "<flag not provided>", "Input file containing initial board state")
 	flag.IntVar(&amount, "amount", -1, "Number of iterations")
 	flag.BoolVar(&silent, "silent", false, "If true, do not print")
+	flag.BoolVar(&serverMode, "server", false, "Run in server mode")
 }
 
 func main() {
 	flag.Parse()
 
-	board := parseBoard()
-	buffer := initBoard()
+	if serverMode {
+		runServer()
+		return
+	}
 
-	for range amount {
+	board := parseBoard(inputFile)
+	buffer := initBoard(size)
+
+	for i := 0; i < amount; i++ {
 		board, buffer = nextState(board, buffer)
 	}
 
@@ -38,24 +46,24 @@ func main() {
 	}
 }
 
-func initBoard() [][]int {
-	res := make([][]int, size)
+func initBoard(s int) [][]int {
+	res := make([][]int, s)
 	for i := range res {
-		res[i] = make([]int, size)
+		res[i] = make([]int, s)
 	}
 	return res
 }
 
-func parseBoard() [][]int {
-	fileContent, err := os.ReadFile(inputFile)
+func parseBoard(file string) [][]int {
+	fileContent, err := os.ReadFile(file)
 	if err != nil {
-		panic(fmt.Sprintf("Error reading file %s: %v", inputFile, err))
+		panic(fmt.Sprintf("Error reading file %s: %v", file, err))
 	}
 
 	lines := strings.Split(strings.TrimSpace(string(fileContent)), "\n")
 
 	size = len(lines)
-	board := initBoard()
+	board := initBoard(size)
 
 	for row, line := range lines {
 		for col, ch := range line {
@@ -112,11 +120,47 @@ func printBoard(board [][]int) {
 	defer file.Close()
 
 	var strb strings.Builder
-	for y := range len(board) {
-		for x := range len(board) {
+	for y := 0; y < len(board); y++ {
+		for x := 0; x < len(board); x++ {
 			strb.WriteString(strconv.Itoa(board[y][x]))
 		}
 		strb.WriteRune('\n')
 	}
 	file.WriteString(strb.String())
+}
+
+func runServer() {
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Println("READY")
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.TrimSpace(line) == "SHUTDOWN" {
+			break
+		}
+		if strings.HasPrefix(line, "RUN ") {
+			parts := strings.Fields(line[4:])
+			if len(parts) >= 1 {
+				f := parts[0]
+				n := 1
+				if len(parts) >= 2 {
+					if v, err := strconv.Atoi(parts[1]); err == nil {
+						n = v
+					}
+				}
+				board := parseBoard(f)
+				buffer := initBoard(size)
+				for i := 0; i < n; i++ {
+					board, buffer = nextState(board, buffer)
+				}
+				if !silent {
+					printBoard(board)
+				}
+				fmt.Println("DONE")
+			} else {
+				fmt.Println("ERROR bad request")
+			}
+		} else {
+			fmt.Println("ERROR unknown command")
+		}
+	}
 }
