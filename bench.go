@@ -32,16 +32,26 @@ type Exe struct {
 	Average    float32
 	Benchmarks []int64
 	TotalTime  int64
-}
-
-func (e Exe) String() string {
-	return fmt.Sprintf("Exe{Name: %s, Args: %v, Dir: %s, Average: %.2f, Benchmarks: %v, TotalTime: %d}",
-		e.Name, e.Args, e.Dir, e.Average, e.Benchmarks, e.TotalTime)
+	PeakMemory int64
 }
 
 const (
 	boardFile = "./input.txt"
 )
+
+func humanBytes(b uint64) string {
+	const unit = 1024
+	if b < unit {
+		return fmt.Sprintf("%d B", b)
+	}
+	div, exp := uint64(unit), 0
+	for n := b / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.2f %cB",
+		float64(b)/float64(div), "KMGTPE"[exp])
+}
 
 func init() {
 	flag.IntVar(&amount, "amount", 10, "Amount of generations to benchmark")
@@ -94,12 +104,13 @@ func main() {
 	})
 
 	tableOutput := fmt.Sprintf("Benchmark for a %dx%d board with %d generations with a %d sec timeout\n", size, size, amount, timeoutSec)
-	tableOutput += fmt.Sprintf("| %-12s | %-12s | %-12s |\n", "Language", "Avg Time ms", "Iterations")
-	tableOutput += fmt.Sprintf("|%s|%s|%s|\n", strings.Repeat("-", 14), strings.Repeat("-", 14), strings.Repeat("-", 14))
+	tableOutput += fmt.Sprintf("| %-12s | %-12s | %-12s | %-12s |\n", "Language", "Avg Time ms", "Peak Mem", "Iterations")
+	tableOutput += fmt.Sprintf("|%s|%s|%s|%s|\n", strings.Repeat("-", 14), strings.Repeat("-", 14), strings.Repeat("-", 14), strings.Repeat("-", 14))
 
 	for _, exe := range exes {
 		avgMilli := exe.Average / 1000
-		tableOutput += fmt.Sprintf("| %-12s | %-12.2f | %-12d |\n", exe.Name, avgMilli, len(exe.Benchmarks))
+		memBytes := uint64(exe.PeakMemory) * 1024
+		tableOutput += fmt.Sprintf("| %-12s | %-12.2f | %-12s | %-12d |\n", exe.Name, avgMilli, humanBytes(memBytes), len(exe.Benchmarks))
 	}
 
 	fmt.Println(tableOutput)
@@ -259,6 +270,9 @@ func runIterations(
 			dur := endTime - startTime
 			exe.Benchmarks = append(exe.Benchmarks, dur)
 			exe.TotalTime += dur
+			if mem := getPeakMemory(cmd.Process.Pid); mem > exe.PeakMemory {
+				exe.PeakMemory = mem
+			}
 		case e := <-respErr:
 			fmt.Println("\nError reading response:", e)
 			cleanupServer(cmd, stdin)
@@ -275,6 +289,27 @@ func runIterations(
 		}
 	}
 	fmt.Println()
+}
+
+func getPeakMemory(pid int) int64 {
+	data, err := os.ReadFile(fmt.Sprintf("/proc/%d/status", pid))
+	if err != nil {
+		return 0
+	}
+
+	scanner := bufio.NewScanner(strings.NewReader(string(data)))
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "VmHWM:") {
+			fields := strings.Fields(line)
+			if len(fields) >= 2 {
+				if val, err := strconv.ParseInt(fields[1], 10, 64); err == nil {
+					return val
+				}
+			}
+		}
+	}
+	return 0
 }
 
 func genBoard(size int) {

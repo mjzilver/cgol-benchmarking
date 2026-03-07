@@ -25,19 +25,19 @@ This benchmark tests
 
 ## Results  
 Benchmark for a 50x50 board with 1000 generations with a 30 sec timeout
-| Language     | Avg Time ms  | Iterations   |
-|--------------|--------------|--------------|
-| C++          | 59.90        | 100          |
-| C            | 75.28        | 100          |
-| Rust         | 75.68        | 100          |
-| Java         | 173.00       | 100          |
-| C#           | 228.68       | 100          |
-| F#           | 246.55       | 100          |
-| Node.js      | 410.59       | 74           |
-| Go           | 569.10       | 53           |
-| OCaml        | 680.90       | 45           |
-| Python       | 3829.92      | 8            |
-| Perl         | 9217.58      | 4            |
+| Language     | Avg Time ms  | Peak Mem     | Iterations   |
+|--------------|--------------|--------------|--------------|
+| C++          | 58.23        | 3.38 MB      | 100          |
+| C            | 76.78        | 1.52 MB      | 100          |
+| Rust         | 79.71        | 1.89 MB      | 100          |
+| Java         | 173.24       | 121.38 MB    | 100          |
+| C#           | 234.51       | 35.53 MB     | 100          |
+| F#           | 250.68       | 39.46 MB     | 100          |
+| Node.js      | 405.63       | 68.27 MB     | 74           |
+| Go           | 535.03       | 5.23 MB      | 57           |
+| OCaml        | 664.99       | 5.52 MB      | 46           |
+| Python       | 4140.69      | 14.66 MB     | 8            |
+| Perl         | 10685.67     | 7.62 MB      | 3            |
 
 ## Time Complexity
 O(T * N^2)
