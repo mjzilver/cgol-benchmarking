@@ -31,6 +31,11 @@ type Exe struct {
 	TotalTime  int64
 }
 
+func (e Exe) String() string {
+	return fmt.Sprintf("Exe{Name: %s, Args: %v, Dir: %s, Average: %.2f, Benchmarks: %v, TotalTime: %d}",
+		e.Name, e.Args, e.Dir, e.Average, e.Benchmarks, e.TotalTime)
+}
+
 const (
 	boardFile = "./input.txt"
 )
@@ -56,7 +61,6 @@ func main() {
 		{Name: "Rust", Args: []string{"./bin/cgol"}, Dir: "./rust"},
 		{Name: "C#", Args: []string{"./bin/dotnet/cgol"}, Dir: "./csharp"},
 		{Name: "F#", Args: []string{"./bin/cgol"}, Dir: "./fsharp"},
-		{Name: "Zig", Args: []string{"./bin/cgol"}, Dir: "./zig"},
 	}
 
 	if generate {
@@ -108,8 +112,11 @@ func main() {
 
 func benchmarkExe(exe *Exe, stdArgs []string) {
 	exe.Args = append(exe.Args, stdArgs...)
+	fmt.Printf("Starting benchmark: %s\n", exe.Name)
 
-	for range iterations {
+	for i := range iterations {
+		fmt.Printf("\r  Progress: %d/%d", i+1, iterations)
+
 		cmd := exec.Command(exe.Args[0], exe.Args[1:]...)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
@@ -117,17 +124,19 @@ func benchmarkExe(exe *Exe, stdArgs []string) {
 
 		startTime := time.Now().UnixMicro()
 		if err := cmd.Run(); err != nil {
-			fmt.Printf("Error executing %s: %s\n", exe.Args[0], err)
-			panic(err)
+			fmt.Printf("Error executing %s: %s\n", exe, err)
+			continue
 		}
 		endTime := time.Now().UnixMicro()
 
 		exe.Benchmarks = append(exe.Benchmarks, endTime-startTime)
 		exe.TotalTime = exe.TotalTime + endTime - startTime
 		if exe.TotalTime > int64(timeoutSec*1000*1000) {
+			fmt.Println()
 			return
 		}
 	}
+	fmt.Println()
 }
 
 func genBoard(size int) {

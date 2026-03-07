@@ -31,4 +31,3 @@ compare:
 	diff ./rust/output.txt ./go/output.txt
 	diff ./perl/output.txt ./go/output.txt
 	diff ./fsharp/output.txt ./go/output.txt
-	diff ./zig/output.txt ./go/output.txt

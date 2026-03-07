@@ -1,4 +1,4 @@
-OCAMLC = ocamlc
+OCAMLC = ocamlopt -O3 -inline 20 -unbox-closures -noassert
 TARGET = cgol
 SRC = cgol.ml
 BIN = bin
@@ -19,4 +19,5 @@ run: $(BIN)/$(TARGET)
 clean:
 	rm -f $(BIN)/$(TARGET)
 	rm -f *.cmi
-	rm -f *.cmo
+	rm -f *.cmx
+	rm -f *.o

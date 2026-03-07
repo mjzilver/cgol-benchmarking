@@ -11,6 +11,17 @@ Generate new input files
     make gen
 ```
 
+## Idea
+
+I wanted a benchmark that actually tests something and not just a hello world or useless loops. 
+
+This benchmark tests
+- Handling process flags
+- Reading a file
+- Parsing text into a 2d array
+- Computations on a 2d array
+- Writing to file
+
 ## Current implemented Languages
 - Go
 - C (99)
@@ -19,22 +30,18 @@ Generate new input files
 - Rust
 - C#
 - FSharp 
-- Zig
 
 ## Results  
 Benchmark for a 50x50 board with 1000 generations with a 30 sec timeout
 | Language     | Avg Time ms  | Iterations   |
 |--------------|--------------|--------------|
-| C            | 63.95        | 100          |
-| Rust         | 73.25        | 100          |
-| Zig          | 160.41       | 100          |
-| C#           | 227.94       | 100          |
-| F#           | 344.09       | 88           |
-| Go           | 464.56       | 65           |
-| OCaml        | 1820.10      | 17           |
-| Perl         | 10335.59     | 3            |
-
-Note: All the code is idiomatic for the language and not hightly optimized, that is not what is being tested.
+| C            | 77.67        | 100          |
+| Rust         | 80.90        | 100          |
+| C#           | 304.17       | 99           |
+| F#           | 455.20       | 66           |
+| Go           | 515.32       | 59           |
+| OCaml        | 699.29       | 43           |
+| Perl         | 12957.62     | 3            |
 
 ## Time Complexity
 O(T * N^2)
