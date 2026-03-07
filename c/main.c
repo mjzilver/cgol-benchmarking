@@ -33,10 +33,7 @@ void freeBoard() {
 }
 
 int **nextState() {
-    int **newBoard = (int **)malloc(size * sizeof(int *));
-    for (int i = 0; i < size; i++) {
-        newBoard[i] = (int *)malloc(size * sizeof(int));
-    }
+    int *buffer = (int *)malloc(size * size * sizeof(int));
 
     for (int y = 0; y < size; y++) {
         for (int x = 0; x < size; x++) {
@@ -50,22 +47,26 @@ int **nextState() {
 
             if (board[y][x] == 1) {
                 if (count < 2 || count > 3) {
-                    newBoard[y][x] = 0;
+                    buffer[y * size + x] = 0;
                 } else {
-                    newBoard[y][x] = 1;
+                    buffer[y * size + x] = 1;
                 }
             } else {
                 if (count == 3) {
-                    newBoard[y][x] = 1;
+                    buffer[y * size + x] = 1;
                 } else {
-                    newBoard[y][x] = 0;
+                    buffer[y * size + x] = 0;
                 }
             }
         }
     }
 
-    freeBoard();
-    return newBoard;
+    for (int i = 0; i < size; i++) {
+        memcpy(board[i], buffer + i * size, size * sizeof(int));
+    }
+
+    free(buffer);
+    return board;
 }
 
 void printBoard() {

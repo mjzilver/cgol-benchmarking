@@ -27,15 +27,15 @@ This benchmark tests
 Benchmark for a 50x50 board with 1000 generations with a 30 sec timeout
 | Language     | Avg Time ms  | Iterations   |
 |--------------|--------------|--------------|
-| C++          | 56.92        | 100          |
-| Rust         | 73.81        | 100          |
-| C            | 74.36        | 100          |
-| Java         | 164.89       | 100          |
-| C#           | 209.98       | 100          |
-| F#           | 236.01       | 100          |
-| Node.js      | 389.49       | 78           |
-| Go           | 524.00       | 58           |
-| OCaml        | 624.70       | 49           |
+| C++          | 59.90        | 100          |
+| C            | 75.28        | 100          |
+| Rust         | 75.68        | 100          |
+| Java         | 173.00       | 100          |
+| C#           | 228.68       | 100          |
+| F#           | 246.55       | 100          |
+| Node.js      | 410.59       | 74           |
+| Go           | 569.10       | 53           |
+| OCaml        | 680.90       | 45           |
 | Python       | 3829.92      | 8            |
 | Perl         | 9217.58      | 4            |
 
@@ -46,7 +46,7 @@ Where:
 - `T` is the number of generations.
 - `N` is the size.
 
-## Benchmark configuration
+## For example
 
 Board size of 50:
 ```
