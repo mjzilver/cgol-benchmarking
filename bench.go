@@ -74,7 +74,7 @@ func main() {
 		{Name: "Python", Args: []string{"python3", "./cgol.py"}, Dir: "./python"},
 		{Name: "OCaml", Args: []string{"./bin/cgol"}, Dir: "./ocaml"},
 		{Name: "Rust", Args: []string{"./bin/cgol"}, Dir: "./rust"},
-		{Name: "C#", Args: []string{"./bin/dotnet/cgol"}, Dir: "./csharp"},
+		{Name: "C#", Args: []string{"./bin/cgol"}, Dir: "./csharp"},
 		{Name: "F#", Args: []string{"./bin/cgol"}, Dir: "./fsharp"},
 		{Name: "Java", Args: []string{"java", "-jar", "./bin/cgol.jar"}, Dir: "./java"},
 		{Name: "Node.js", Args: []string{"node", "./cgol.js"}, Dir: "./nodejs"},

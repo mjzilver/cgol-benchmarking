@@ -17,12 +17,13 @@ def run_binary():
     binary_path = request.form.get('binary_path')
     board = request.form.get('board')
     
-    with open(TEMP_FILE, 'w') as t:
+    with open(TEMP_FILE, 'w', newline='\n') as t:
+        board = board.replace('\r\n', '\n')
         t.write(board)
         t.close()
 
         try:
-            subprocess.run([binary_path, "--file", TEMP_FILE, "--amount", "1"])
+            subprocess.run([binary_path, "--file", TEMP_FILE, "--amount", "1"], check=True)
 
             return send_file(OUTPUT_FILE, as_attachment=False)
         except subprocess.CalledProcessError as e:

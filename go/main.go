@@ -120,8 +120,8 @@ func printBoard(board [][]int) {
 	defer file.Close()
 
 	var strb strings.Builder
-	for y := 0; y < len(board); y++ {
-		for x := 0; x < len(board); x++ {
+	for y := range board {
+		for x := range board {
 			strb.WriteString(strconv.Itoa(board[y][x]))
 		}
 		strb.WriteRune('\n')
