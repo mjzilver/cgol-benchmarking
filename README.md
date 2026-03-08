@@ -17,11 +17,9 @@ I wanted a benchmark that actually tests something and not just a hello world or
 It ignores the startup time by setting up a server that receives the board path via stdin.
 
 This benchmark tests
-- Handling process flags
 - Reading a file
 - Parsing text into a 2d array
 - Computations on a 2d array
-- Writing to file
 
 ## Results  
 Benchmark for a 50x50 board with 1000 generations with a 30 sec timeout
